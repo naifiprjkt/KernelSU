@@ -203,7 +203,7 @@ try_drop_caps:
 	return;
 }
 
-static void disable_seccomp()
+void disable_seccomp()
 {
 	assert_spin_locked(&current->sighand->siglock);
 	// disable seccomp
