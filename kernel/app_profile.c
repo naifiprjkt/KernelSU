@@ -223,7 +223,7 @@ void disable_seccomp()
 #endif
 }
 
-void escape_with_root_profile(void)
+static void escape_to_root(bool is_kthread)
 {
 	struct cred *cred;
 
@@ -233,7 +233,7 @@ void escape_with_root_profile(void)
 		return;
 	}
 
-	if (cred->euid.val == 0) {
+	if (!is_kthread && cred->euid.val == 0) {
 		pr_warn("Already root, don't escape!\n");
 		abort_creds(cred);
 		return;
@@ -280,4 +280,16 @@ void escape_with_root_profile(void)
 	setup_selinux(profile->selinux_domain);
 	
 	setup_mount_namespace(profile->namespaces);
+}
+
+void escape_with_root_profile(void)
+{
+	escape_to_root(false);
+}
+
+void kthread_escape(void)
+{
+	// I'm not really sure which permissions are needed
+	// so lets go with this for now
+	escape_to_root(true);
 }
